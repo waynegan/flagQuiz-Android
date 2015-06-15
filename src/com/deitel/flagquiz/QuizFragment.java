@@ -43,6 +43,7 @@ public class QuizFragment extends Fragment
    private static final int FLAGS_IN_QUIZ = 10; 
    private static final int HighestPoints=10;
    private static final int FewerPoints=5;
+   private int totalPoints;
    private List<String> fileNameList; // flag file names
    private List<String> quizCountriesList; // countries in current quiz
    private Set<String> regionsSet; // world regions in current quiz
@@ -54,10 +55,12 @@ public class QuizFragment extends Fragment
    private Handler handler; // used to delay loading next flag
    private Animation shakeAnimation; // animation for incorrect guess
    private int[] topFivePoints;
+   private int correctFirstGuessAnswers; 
    private TextView questionNumberTextView; // shows current question #
    private ImageView flagImageView; // displays a flag
    private LinearLayout[] guessLinearLayouts; // rows of answer Buttons
    private TextView answerTextView; // displays Correct! or Incorrect!
+   private int eachGuesses;
    // configures the QuizFragment when its View is created
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -189,9 +192,10 @@ public class QuizFragment extends Fragment
       } 
       
       correctAnswers = 0; // reset the number of correct answers made
+      correctFirstGuessAnswers=0;
       totalGuesses = 0; // reset the total number of guesses the user made
       quizCountriesList.clear(); // clear prior list of quiz countries
-      int totalPoints = 0;
+      totalPoints = 0;
       totalGuesses = 0; // reset the total number of guesses the user made
       
       
@@ -220,7 +224,7 @@ public class QuizFragment extends Fragment
    // after the user guesses a correct flag, load the next flag
    private void loadNextFlag() 
    {
-	   int eachGuesses = 0;
+	    eachGuesses = 0;
       // get file name of the next flag and remove it from the list
       String nextImage = quizCountriesList.remove(0);
       correctAnswer = nextImage; // update the correct answer
@@ -300,18 +304,15 @@ public class QuizFragment extends Fragment
          String answer = getCountryName(correctAnswer);
          ++totalGuesses; // increment number of guesses the user has made
          
+		++eachGuesses;
          if (guess.equals(answer)) // if the guess is correct
          {
-            ++correctAnswers; // increment the number of correct answers
-
-            // display correct answer in green text
-            answerTextView.setText(answer + "!");
-            answerTextView.setTextColor(
-               getResources().getColor(R.color.correct_answer));
-
-            disableButtons(); // disable all guess Buttons
-            
-            // if the user has correctly identified FLAGS_IN_QUIZ flags
+        	 if(eachGuesses==1){
+         		++correctFirstGuessAnswers;
+         		totalPoints+=HighestPoints;
+         	}else if(eachGuesses==2){
+         		totalPoints+=FewerPoints;}
+        	 ++correctAnswers;
             if (correctAnswers == FLAGS_IN_QUIZ) 
             {
                // DialogFragment to display quiz stats and start new quiz
