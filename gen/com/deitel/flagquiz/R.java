@@ -85,6 +85,7 @@ public final class R {
         public static final int restarting_quiz=0x7f09000b;
         public static final int results=0x7f090008;
         public static final int settings_activity=0x7f090002;
+        public static final int top_of_scores=0x7f090011;
         public static final int world_regions=0x7f090005;
         public static final int world_regions_description=0x7f090006;
     }

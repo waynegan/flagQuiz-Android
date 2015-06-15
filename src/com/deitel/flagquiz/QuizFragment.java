@@ -58,7 +58,6 @@ public class QuizFragment extends Fragment
    private ImageView flagImageView; // displays a flag
    private LinearLayout[] guessLinearLayouts; // rows of answer Buttons
    private TextView answerTextView; // displays Correct! or Incorrect!
-   
    // configures the QuizFragment when its View is created
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -192,6 +191,9 @@ public class QuizFragment extends Fragment
       correctAnswers = 0; // reset the number of correct answers made
       totalGuesses = 0; // reset the total number of guesses the user made
       quizCountriesList.clear(); // clear prior list of quiz countries
+      int totalPoints = 0;
+      totalGuesses = 0; // reset the total number of guesses the user made
+      
       
       int flagCounter = 1; 
       int numberOfFlags = fileNameList.size(); 
@@ -218,6 +220,7 @@ public class QuizFragment extends Fragment
    // after the user guesses a correct flag, load the next flag
    private void loadNextFlag() 
    {
+	   int eachGuesses = 0;
       // get file name of the next flag and remove it from the list
       String nextImage = quizCountriesList.remove(0);
       correctAnswer = nextImage; // update the correct answer
