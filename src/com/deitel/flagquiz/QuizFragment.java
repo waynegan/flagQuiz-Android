@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -31,6 +33,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class QuizFragment extends Fragment 
 {
@@ -38,7 +41,8 @@ public class QuizFragment extends Fragment
    private static final String TAG = "FlagQuiz Activity";
 
    private static final int FLAGS_IN_QUIZ = 10; 
-   
+   private static final int HighestPoints=10;
+   private static final int FewerPoints=5;
    private List<String> fileNameList; // flag file names
    private List<String> quizCountriesList; // countries in current quiz
    private Set<String> regionsSet; // world regions in current quiz
@@ -49,7 +53,7 @@ public class QuizFragment extends Fragment
    private SecureRandom random; // used to randomize the quiz
    private Handler handler; // used to delay loading next flag
    private Animation shakeAnimation; // animation for incorrect guess
-   
+   private int[] topFivePoints;
    private TextView questionNumberTextView; // shows current question #
    private ImageView flagImageView; // displays a flag
    private LinearLayout[] guessLinearLayouts; // rows of answer Buttons
@@ -66,6 +70,7 @@ public class QuizFragment extends Fragment
 
       fileNameList = new ArrayList<String>();
       quizCountriesList = new ArrayList<String>();
+     topFivePoints = new int[]{0,0,0,0,0};
       random = new SecureRandom(); 
       handler = new Handler(); 
 
@@ -126,8 +131,41 @@ public class QuizFragment extends Fragment
       regionsSet = 
          sharedPreferences.getStringSet(MainActivity.REGIONS, null);
    }  
+   
 
    // set up and start the next quiz 
+   
+   public void setTopFive(SharedPreferences sharedPreferences)
+   {
+	   int i=0;
+	   Set<String> scores=sharedPreferences.getStringSet(MainActivity.SCORES, null);
+	   if(scores!=null){
+		   for (String s : scores) 
+	       {
+			   topFivePoints[i++]=Integer.parseInt(s);
+	       }
+		   Arrays.sort(topFivePoints);
+	   }
+	   Toast.makeText(this.getActivity(), getResources().getString(R.string.top_of_scores)+Arrays.toString(topFivePoints), Toast.LENGTH_LONG).show();
+   } 
+   private void addHighScore(int totalPoints) {
+		// TODO Auto-generated method stub
+		int[] temp={totalPoints,0,0,0,0,0};
+		System.arraycopy(topFivePoints, 0, temp, 1, 5);
+		//System.out.println(totalPoints);
+		//System.out.println(Arrays.toString(temp));
+		Arrays.sort(temp);
+		System.arraycopy(temp, 1, topFivePoints, 0, 5);
+		//System.out.println(Arrays.toString(topFivePoints));
+		Set<String> set = new HashSet<String>();
+		for(int i=0;i<topFivePoints.length;i++){
+			set.add(topFivePoints[i]+"");
+		}
+		SharedPreferences.Editor editor= getActivity().getSharedPreferences(MainActivity.MAIN, 0).edit();
+		editor.putStringSet(MainActivity.SCORES, set);
+       editor.commit();
+       Toast.makeText(this.getActivity(), getResources().getString(R.string.top_of_scores)+Arrays.toString(topFivePoints), Toast.LENGTH_LONG).show();
+  }
    public void resetQuiz() 
    {      
       // use AssetManager to get image file names for enabled regions
@@ -184,7 +222,6 @@ public class QuizFragment extends Fragment
       String nextImage = quizCountriesList.remove(0);
       correctAnswer = nextImage; // update the correct answer
       answerTextView.setText(""); // clear answerTextView 
-
       // display current question number
       questionNumberTextView.setText(
          getResources().getString(R.string.question, 
